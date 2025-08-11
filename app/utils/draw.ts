@@ -1,5 +1,15 @@
 // 绘制元素
-  import ToolLibrary from "../model/tool";
+  import { createToolLibrary } from "../model/tool";
+
+  const ToolLibrary = createToolLibrary()
+
+  const toolData = {
+    lineCap: 'round',
+    lineJoin: 'round',
+    strokeStyle: '#e0e0e0',
+    lineWidth: 1
+  }
+
   const drawElement = (ctx, element, viewport, scale, color, lineWidth, setElements) => {
     ctx.save();
     ctx.translate(-viewport.x * scale, -viewport.y * scale);
@@ -8,8 +18,8 @@
     ctx.strokeStyle = element.color || color;
     ctx.fillStyle = element.color || color;
     ctx.lineWidth = element.lineWidth || lineWidth;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = toolData.lineCap;
+    ctx.lineJoin = toolData.lineJoin;
 
     ToolLibrary.updateTool(tool=>tool.name===element.type,null).fn.drawElement(ctx,element,setElements)
     ctx.restore();
@@ -25,8 +35,8 @@
     const startX = Math.floor(worldLeft / gridSize) * gridSize;
     const startY = Math.floor(worldTop / gridSize) * gridSize;
 
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = toolData.strokeStyle;
+    ctx.lineWidth = toolData.lineWidth;
 
     for (let worldY = startY; worldY <= worldBottom; worldY += gridSize) {
         const screenY = (worldY - viewport.y) * scale;

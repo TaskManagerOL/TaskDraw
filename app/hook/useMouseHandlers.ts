@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { screenToWorld } from "../utils/coordinate";
 import { redrawCanvas } from "../utils/draw"
-import ToolLibrary from "../model/tool";
+import { createToolLibrary } from "../model/tool";
+
 
 export function useMouseHandlers(states,setters) {
   const {
@@ -11,6 +12,14 @@ export function useMouseHandlers(states,setters) {
   const {
     setElements, setIsDrawing, setTempElement,setIsPanning,setPanStart,setViewport,setScale
   } = setters;
+
+  const ToolLibrary = createToolLibrary()
+
+  const toolData = {
+    zoomIntensity: 0.05,
+    zoomMin: 0.3,
+    zoomMax: 3
+  }
 
   const handleMouseDown = useCallback((e) => {
     const canvas = canvasRef.current;
@@ -26,7 +35,6 @@ export function useMouseHandlers(states,setters) {
       return;
     }
 
-    // 转换为世界坐标
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
 
     setIsDrawing(true);
@@ -71,7 +79,6 @@ export function useMouseHandlers(states,setters) {
     }
     if (!isDrawing) return;
     setIsDrawing(false);
-    // 保存完成元素
     if(tempElement){
       setElements(prev => [...prev, tempElement]);
       setTempElement(null);
@@ -88,15 +95,10 @@ export function useMouseHandlers(states,setters) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // 获取鼠标位置的世界坐标
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
 
-    // 计算新缩放级别
-    const zoomIntensity = 0.05;
     const wheel = e.deltaY < 0 ? 1 : -1;
-    // const newScale = Math.max(0.5, Math.min(scale * (1 + wheel * zoomIntensity), 3));
-    const newScale = Math.max(0.3, Math.min(scale + wheel * zoomIntensity, 3));
-    // 计算新的视口位置，使鼠标下的点保持固定
+    const newScale = Math.max(toolData.zoomMin, Math.min(scale + wheel * toolData.zoomIntensity, toolData.zoomMax));
     setViewport(prev => ({
       x: prev.x + worldPos.x * (1 - scale / newScale),
       y: prev.y + worldPos.y * (1 - scale / newScale)

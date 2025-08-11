@@ -1,6 +1,6 @@
 'use client'
 import Icon from '@mdi/react';
-import ToolLibrary from "../../../model/tool";
+import { createToolLibrary } from "../../../model/tool";
 export default function ToolBar({
         tool,
         setTool,
@@ -11,7 +11,7 @@ export default function ToolBar({
         firstTool, 
         setFirstTool
     }) {
-
+    const ToolLibrary = createToolLibrary()
     return (
         <div className="w-10 absolute top-4 left-4 bg-[#e5e5e5] opacity-80 rounded-full px-3 py-2 flex flex-col justify-center items-center shadow-xl transition-all duration-800">
             <div className="flex gap-2 flex-col justify-center items-center">
@@ -47,7 +47,7 @@ export default function ToolBar({
                                         onClick={() => setTool(item.name)}
                                         title={item.text}
                                     >
-                                        <Icon path={item.icon} size={item.iconSize||1} />
+                                        <Icon path={item.icon} size={item.name=='rectangle'?1.25:1} />
                                     </button>
                                 )
                             })}

@@ -1,4 +1,8 @@
 //此处写工具的canvas逻辑
+// interface toolFn {
+//     drawElement:
+// }
+
 const ballpointPen = {
   drawElement:(...args) => {
     const [ ctx,element ] = args

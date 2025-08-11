@@ -93,7 +93,7 @@ const tool = {
       text: '绘图工具',
       icon: mdiShapePlus,
       children: [
-        { id: 5,name: 'rectangle', text: '矩形', icon: mdiRectangleOutline, iconSize:1.25, fn: rectangle },
+        { id: 5,name: 'rectangle', text: '矩形', icon: mdiRectangleOutline, fn: rectangle },
         { id: 6,name: 'circle', text: '圆形', icon: mdiCircleOutline, fn: circle }
       ]
     },{
@@ -114,6 +114,5 @@ const tool = {
   ]
 }
 
-const ToolLibrary = new ToolModel(tool);
-
-export default ToolLibrary
+//这里使用简单的工厂设计模式逻辑，确保ws连接的时候用户使用的toolmodel不会相互影响。
+export const createToolLibrary = () => new ToolModel(tool);
