@@ -1,16 +1,16 @@
-  // 绘制元素
+// 绘制元素
   import ToolLibrary from "../model/tool";
   const drawElement = (ctx, element, viewport, scale, color, lineWidth, setElements) => {
     ctx.save();
     ctx.translate(-viewport.x * scale, -viewport.y * scale);
     ctx.scale(scale, scale);
-    
+
     ctx.strokeStyle = element.color || color;
     ctx.fillStyle = element.color || color;
     ctx.lineWidth = element.lineWidth || lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    
+
     ToolLibrary.updateTool(tool=>tool.name===element.type,null).fn.drawElement(ctx,element,setElements)
     ctx.restore();
   };
@@ -21,13 +21,13 @@
     const worldRight = viewport.x + width / scale;
     const worldTop = viewport.y;
     const worldBottom = viewport.y + height / scale;
-    
+
     const startX = Math.floor(worldLeft / gridSize) * gridSize;
     const startY = Math.floor(worldTop / gridSize) * gridSize;
-    
+
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 1;
-    
+
     for (let worldY = startY; worldY <= worldBottom; worldY += gridSize) {
         const screenY = (worldY - viewport.y) * scale;
         ctx.beginPath();
@@ -35,7 +35,7 @@
         ctx.lineTo(width, screenY);
         ctx.stroke();
     }
-    
+
     for (let worldX = startX; worldX <= worldRight; worldX += gridSize) {
         const screenX = (worldX - viewport.x) * scale;
         ctx.beginPath();
@@ -45,7 +45,7 @@
     }
   };
 
-  const redrawCanvas = (canvasRef,elements,tempElement,viewport,scale,color,lineWidth,setElements) => {
+  const redrawCanvas = (canvasRef,elements,tempElement,viewport,scale,color,lineWidth,setElements) => {  //需要用脏矩阵优化
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');

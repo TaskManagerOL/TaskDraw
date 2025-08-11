@@ -7,7 +7,7 @@ export function useMouseHandlers(states,setters) {
   const {
     tool, color, lineWidth, isDrawing, canvasRef, scale,viewport,isPanning,panStart,tempElement,elements
   } = states;
-  
+
   const {
     setElements, setIsDrawing, setTempElement,setIsPanning,setPanStart,setViewport,setScale
   } = setters;
@@ -15,20 +15,20 @@ export function useMouseHandlers(states,setters) {
   const handleMouseDown = useCallback((e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    
+
     if (e.button === 2) { // 中键或Ctrl键按下 - 平移模式
       setIsPanning(true);
       setPanStart({ x, y });
       return;
     }
-    
+
     // 转换为世界坐标
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
-    
+
     setIsDrawing(true);
 
     ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseDown(tool,color,lineWidth,worldPos,setTempElement,setElements)
@@ -38,34 +38,31 @@ export function useMouseHandlers(states,setters) {
   const handleMouseMove = useCallback((e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     if (isPanning) {
         const dx = (x - panStart.x) / scale;
         const dy = (y - panStart.y) / scale;
-        
+
         setViewport(prev => ({
             x: prev.x - dx,
             y: prev.y - dy
         }));
-        
+
         setPanStart({ x, y });
         redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
         return;
     }
-    
-    if (!isDrawing) return;
-    
-    // 转换为世界坐标
-    const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
 
-    ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseMove(worldPos,setTempElement)
-    
+    if (!isDrawing) return;
+
+    const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
+    ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseMove(worldPos,setTempElement,elements,setElements,lineWidth)
     redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
-  },[canvasRef,panStart,elements,color,lineWidth,tempElement,viewport,scale,tool,isDrawing,isPanning,setViewport,setPanStart,setTempElement])
+  },[canvasRef,panStart,elements,color,lineWidth,tempElement,viewport,scale,tool,isDrawing,isPanning,setViewport,setPanStart,setTempElement,setElements])
 
   const handleMouseUp = useCallback(() => {
     if (isPanning) {
@@ -83,17 +80,17 @@ export function useMouseHandlers(states,setters) {
 
   const handleWheel = useCallback((e) => {
     e.preventDefault();
-    
+
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     // 获取鼠标位置的世界坐标
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
-    
+
     // 计算新缩放级别
     const zoomIntensity = 0.05;
     const wheel = e.deltaY < 0 ? 1 : -1;
@@ -104,10 +101,10 @@ export function useMouseHandlers(states,setters) {
       x: prev.x + worldPos.x * (1 - scale / newScale),
       y: prev.y + worldPos.y * (1 - scale / newScale)
     }));
-    
+
     setScale(newScale);
     redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
-  },[canvasRef,elements,tempElement,viewport,scale,color,lineWidth,setViewport,setScale]);  
+  },[canvasRef,elements,tempElement,viewport,scale,color,lineWidth,setViewport,setScale]);
   return {
     handleMouseDown,
     handleMouseMove,

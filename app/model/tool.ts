@@ -1,4 +1,4 @@
-import { 
+import {
   mdiPencil,
   mdiEraser,
   mdiShapePlus,
@@ -10,8 +10,26 @@ import {
   mdiEraserVariant
 } from '@mdi/js';
 
+import {
+  ballpointPen,
+  rectangle,
+  circle,
+  elementEraser,
+  normalEraser
+} from '../utils/toolFn.ts'
+
+type ToolInput = {
+  id:number,
+  name:string,
+  text:string,
+  icon:string,
+  fn?: AnyFn | null;
+  iconSize?: number | null;
+  children?: ToolInput[];
+}
+
 class ToolModel {
-  constructor(tool) {
+  constructor(tool:ToolInput) {
     this.id = tool.id;
     this.name = tool.name;
     this.text = tool.text;
@@ -32,8 +50,8 @@ class ToolModel {
     }
     return arr;
   }
-  
-  findTool(value,order = 'name') {
+
+  findTool(value:string,order:stirng = 'name') {
     return this.children.find(firstTool => firstTool[order] === value)
   }
 
@@ -50,96 +68,6 @@ class ToolModel {
       }
     }
     return this
-  }
-}
-
-//此处写工具的canvas逻辑 
-const ballpointPen = {
-  drawElement:(...args) => {
-    const [ ctx,element ] = args
-    ctx.beginPath();
-    element.points.forEach((point, i) => {
-      if (i === 0)
-        ctx.moveTo(point.x, point.y);
-      else
-        ctx.lineTo(point.x, point.y);
-    });
-    ctx.stroke();
-  },
-  drawMouseDown:(...args) => {
-    const [ tool,color,lineWidth,worldPos,setTempElement ] = args
-    setTempElement({
-      type: tool,
-      points: [worldPos],
-      color,
-      lineWidth
-    });
-  },
-  drawMouseMove: (...args)=>{
-    const [ worldPos,setTempElement ] = args
-    setTempElement(prev => ({
-      ...prev,
-      points: [...prev.points, worldPos]
-    }));
-  }
-} 
-
-const rectangle = {
-  drawElement: (...args) => {
-    const [ ctx,element ] = args
-    ctx.beginPath();
-    ctx.rect(
-      Math.min(element.startX, element.endX),
-      Math.min(element.startY, element.endY),
-      Math.abs(element.endX - element.startX),
-      Math.abs(element.endY - element.startY)
-    );
-    ctx.stroke();
-  },
-  drawMouseDown: (...args) => {
-    const [ tool,color,lineWidth,worldPos,setTempElement ] = args
-    setTempElement({
-      type: tool,
-      startX: worldPos.x,
-      startY: worldPos.y,
-      endX: worldPos.x,
-      endY: worldPos.y,
-      color,
-      lineWidth
-    });
-  },
-  drawMouseMove: (...args) => {
-    const [ worldPos,setTempElement ] = args
-    setTempElement(prev => ({
-      ...prev,
-      endX: worldPos.x,
-      endY: worldPos.y
-    }));
-  }
-}
-
-const circle = {
-  drawElement: (...args) => {
-    const [ ctx,element ] = args
-    const radius = Math.sqrt(
-      Math.pow(element.endX - element.startX, 2) +
-      Math.pow(element.endY - element.startY, 2)
-    );
-    ctx.beginPath();
-    ctx.arc(element.startX, element.startY, radius, 0, Math.PI * 2);
-    ctx.stroke();
-  },
-  drawMouseDown: rectangle.drawMouseDown,
-  drawMouseMove: rectangle.drawMouseMove
-}
-
-const elementEraser = {
-  drawElement: null,
-  drawMouseDown: (...args) => {
-
-  },
-  drawMouseMove: (...args) => {
-    
   }
 }
 
@@ -174,8 +102,8 @@ const tool = {
       text: '橡皮擦',
       icon: mdiEraser,
       children: [
-        { id: 9,name: 'normalEraser', text: '普通橡皮', icon: mdiEraserVariant  },
-        { id: 10,name: 'elementEraser', text: '元素橡皮', icon: mdiCylinderOff  },
+        { id: 9,name: 'normalEraser', text: '普通橡皮', icon: mdiEraserVariant, fn: normalEraser },
+        { id: 10,name: 'elementEraser', text: '元素橡皮', icon: mdiCylinderOff, fn: elementEraser  },
       ]
     },{
       id: 8,
