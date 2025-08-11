@@ -19,8 +19,8 @@ export default function useCanvas() {
   const [firstTool,setFirstTool] = useState('draw')
 
   const mouseHandlers = useMouseHandlers(
-    { tool, color, lineWidth, isDrawing, canvasRef, scale,viewport,isPanning,panStart,tempElement,elements },
-    { setElements, setIsDrawing, setTempElement,setIsPanning,setPanStart,setViewport,setScale }
+    { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements },
+    { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
   );
 
     // 初始化Canvas

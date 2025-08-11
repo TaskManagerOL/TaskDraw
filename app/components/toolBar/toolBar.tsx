@@ -1,11 +1,9 @@
 'use client'
-import { useState } from "react";
 import Icon from '@mdi/react';
 
 import ToolLibrary from "../../model/tool";
 
-export default function ToolBar({tool,setTool,color,setColor,lineWidth,setLineWidth}) {
-    const [firstTool,setFirstTool] = useState('')
+export default function ToolBar({tool,setTool,color,setColor,lineWidth,setLineWidth, firstTool, setFirstTool}) {
     return (
         <div className="w-10 absolute top-4 left-4 bg-[#e5e5e5] opacity-50 rounded-full px-3 py-2 flex flex-col justify-center items-center shadow-xl hover:opacity-90 transition-all duration-800">
             <div className="flex gap-2 flex-col justify-center items-center">

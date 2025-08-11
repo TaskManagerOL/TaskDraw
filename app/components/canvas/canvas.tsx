@@ -5,6 +5,7 @@ import InfoBar from "../infoBar/infoBar";
 import useCanvas from "../../hook/useCanvas";
 
 export default function Canvas() {
+  
   const {
     canvasRef,
     mouseHandlers,
@@ -19,6 +20,7 @@ export default function Canvas() {
     firstTool,
     setFirstTool
   } = useCanvas();
+
   return(
     <div className="relative w-screen h-screen overflow-hidden">
       <canvas
