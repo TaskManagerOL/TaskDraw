@@ -39,7 +39,7 @@ export default function Canvas() {
         lineWidth={lineWidth} 
         setLineWidth={setLineWidth}
         firstTool={firstTool}
-        setFirstTool={setLineWidth}
+        setFirstTool={setFirstTool}
       />
       <InfoBar
         tool={tool}
