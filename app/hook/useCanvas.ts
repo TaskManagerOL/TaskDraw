@@ -23,7 +23,7 @@ export default function useCanvas() {
     { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
   );
 
-    // 初始化Canvas
+  // 初始化Canvas
   useEffect(() => {
     const updateCanvasSize = () => {
         const canvas = canvasRef.current;

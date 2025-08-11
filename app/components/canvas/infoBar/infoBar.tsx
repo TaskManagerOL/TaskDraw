@@ -1,4 +1,8 @@
-export default function InfoBar({viewport,scale,tool}) {
+export default function InfoBar({
+        tool,
+        viewport,
+        scale
+    }){
     return (
         <div className="absolute flex bottom-4 right-4 text-white text-sm ">
             <div className="mt-2 text-xs text-gray-400">
