@@ -10,13 +10,7 @@ import {
   mdiEraserVariant
 } from '@mdi/js';
 
-import {
-  ballpointPen,
-  rectangle,
-  circle,
-  elementEraser,
-  normalEraser
-} from '../utils/toolFn.ts'
+import { toolFn } from '../utils/toolFn.ts'
 
 type ToolInput = {
   id:number,
@@ -84,7 +78,7 @@ const tool = {
       text: '画笔工具',
       icon: mdiPencil,
       children: [
-        { id: 3 ,name: 'ballpointPen', text: '圆珠笔', icon: mdiPen, fn: ballpointPen }
+        { id: 3 ,name: 'ballpointPen', text: '圆珠笔', icon: mdiPen, fn: toolFn.ballpointPen }
       ]
     },
     {
@@ -93,24 +87,27 @@ const tool = {
       text: '绘图工具',
       icon: mdiShapePlus,
       children: [
-        { id: 5,name: 'rectangle', text: '矩形', icon: mdiRectangleOutline, fn: rectangle },
-        { id: 6,name: 'circle', text: '圆形', icon: mdiCircleOutline, fn: circle }
+        { id: 5,name: 'rectangle', text: '矩形', icon: mdiRectangleOutline, fn: toolFn.rectangle },
+        { id: 6,name: 'circle', text: '圆形', icon: mdiCircleOutline, fn: toolFn.circle }
       ]
-    },{
+    },
+    {
       id: 7,
       name: 'eraser',
       text: '橡皮擦',
       icon: mdiEraser,
       children: [
-        { id: 9,name: 'normalEraser', text: '普通橡皮', icon: mdiEraserVariant, fn: normalEraser },
-        { id: 10,name: 'elementEraser', text: '元素橡皮', icon: mdiCylinderOff, fn: elementEraser  },
+        { id: 9,name: 'normalEraser', text: '普通橡皮', icon: mdiEraserVariant, fn: toolFn.normalEraser },
+        { id: 10,name: 'elementEraser', text: '元素橡皮', icon: mdiCylinderOff, fn: toolFn.elementEraser  },
       ]
-    },{
-      id: 8,
-      name: 'text',
-      text: '文本工具',
-      icon: mdiFormatTextVariantOutline,
-    }
+    },
+    // {
+    //   id: 8,
+    //   name: 'text',
+    //   text: '文本工具',
+    //   icon: mdiFormatTextVariantOutline,
+    //   fn: toolFn.text
+    // }
   ]
 }
 

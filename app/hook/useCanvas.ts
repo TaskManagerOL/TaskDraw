@@ -12,7 +12,7 @@ export default function useCanvas() {
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [tool, setTool] = useState('ballpointPen');
   const [color, setColor] = useState('#000000');
-  const [lineWidth, setLineWidth] = useState(3);
+  const [lineWidth, setLineWidth] = useState(10);
   const [isDrawing, setIsDrawing] = useState(false);
   const [elements, setElements] = useState([]);
   const [tempElement, setTempElement] = useState(null);

@@ -75,7 +75,7 @@ export default function ToolBar({
                 <input 
                     type="range" 
                     min="1" 
-                    max="20" 
+                    max="30" 
                     value={lineWidth} 
                     onChange={(e) => setLineWidth(parseInt(e.target.value))}
                     className="w-30 absolute bottom-15 rotate-90 color-[#155dfc]"
