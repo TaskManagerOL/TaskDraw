@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --toolbar-bg: #e5e5e5;
+  --toolbar-border: #cdcdcd;
+  --primary: #0070f3;
 }
 
 @theme inline {
@@ -16,6 +19,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --toolbar-bg: #1a1a1a;
+    --toolbar-border: #333333;
+    --primary: #0070f3;
   }
 }
 

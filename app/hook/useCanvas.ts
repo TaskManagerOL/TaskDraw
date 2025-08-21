@@ -11,7 +11,14 @@ export default function useCanvas() {
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
   const [tool, setTool] = useState('ballpointPen');
-  const [color, setColor] = useState('#000000');
+  // 根据系统主题自动设置初始颜色为反色
+  const getInitialColor = () => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? '#ffffff' : '#000000';
+    }
+    return '#000000';
+  };
+  const [color, setColor] = useState(getInitialColor);
   const [lineWidth, setLineWidth] = useState(10);
   const [isDrawing, setIsDrawing] = useState(false);
   const [elements, setElements] = useState([]);
