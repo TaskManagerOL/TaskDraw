@@ -41,7 +41,7 @@ export function useMouseHandlers(states,setters) {
 
     ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseDown(tool,color,lineWidth,worldPos,setTempElement,setElements)
 
-  },[canvasRef,viewport,scale,tool,lineWidth,color,setIsPanning,setPanStart,setIsDrawing,setElements,setTempElement])
+  },[canvasRef,viewport,scale,tool,lineWidth,color,setIsPanning,setPanStart,setIsDrawing,setElements,setTempElement,ToolLibrary])
 
   const handleMouseMove = useCallback((e) => {
     const canvas = canvasRef.current;
@@ -70,7 +70,7 @@ export function useMouseHandlers(states,setters) {
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
     ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseMove(worldPos,setTempElement,elements,setElements,lineWidth)
     redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
-  },[canvasRef,panStart,elements,color,lineWidth,tempElement,viewport,scale,tool,isDrawing,isPanning,setViewport,setPanStart,setTempElement,setElements])
+  },[canvasRef,panStart,elements,color,lineWidth,tempElement,viewport,scale,tool,isDrawing,isPanning,setViewport,setPanStart,setTempElement,setElements,ToolLibrary])
 
   const handleMouseUp = useCallback(() => {
     if (isPanning) {
@@ -106,7 +106,20 @@ export function useMouseHandlers(states,setters) {
 
     setScale(newScale);
     redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
-  },[canvasRef,elements,tempElement,viewport,scale,color,lineWidth,setViewport,setScale]);
+  },[
+    canvasRef,
+    elements,
+    tempElement,
+    viewport,
+    scale,
+    color,
+    lineWidth,
+    setViewport,
+    setScale,
+    toolData.zoomIntensity,
+    toolData.zoomMax,
+    toolData.zoomMin
+  ]);
   return {
     handleMouseDown,
     handleMouseMove,

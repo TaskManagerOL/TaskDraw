@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from 'react';
 
 import { useMouseHandlers } from './useMouseHandlers';
 import { redrawCanvas } from "../utils/draw";
+// import useWebSocket from "./useWebSocket";
 
 export default function useCanvas() {
   const canvasRef = useRef(null);
@@ -53,6 +54,23 @@ export default function useCanvas() {
     { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
   );
 
+  // // WebSocket 连接
+  // const { ws, sendMessage } = useWebSocket({//需要优化结构
+  //     url: "ws://localhost:8080", // 根据你的后端端口调整
+  //     onOpen: () => {
+  //         console.log("WebSocket 连接已建立");
+  //     },
+  //     onMessage: (event) => {
+  //         setElements(JSON.parse(event.data).elements)
+  //     },
+  //     onClose: () => {
+  //         console.log("WebSocket 连接已关闭");
+  //     },
+  //     onError: (err) => {
+  //         console.error("WebSocket 错误:", err);
+  //     },
+  // });
+
   // 初始化Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,6 +107,7 @@ export default function useCanvas() {
   // 绘制工具变化时重绘
   useEffect(() => {
     redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
+    // sendMessage({elements})
   }, [viewport, scale, elements, tempElement, color, lineWidth]);
 
   return { 

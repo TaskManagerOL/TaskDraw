@@ -2,7 +2,6 @@ import {
   mdiPencil,
   mdiEraser,
   mdiShapePlus,
-  mdiFormatTextVariantOutline,
   mdiPen,
   mdiRectangleOutline,
   mdiCircleOutline,
