@@ -66,6 +66,7 @@
     elements.forEach(element => {
       drawElement(ctx, element,viewport, scale, color, lineWidth,setElements);
     });
+    
     if (tempElement) {
       drawElement(ctx, tempElement,viewport, scale, color, lineWidth);
     }
