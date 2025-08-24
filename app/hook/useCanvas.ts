@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useMouseHandlers } from './useMouseHandlers';
 import { redrawCanvas } from "../utils/draw";
 import useWebSocket from "./useWebSocket";
+import debounce from '../utils/debounce';
 
 export default function useCanvas() {
   const canvasRef = useRef(null);
@@ -109,11 +110,14 @@ export default function useCanvas() {
   // 绘制工具变化时重绘
   useEffect(() => {
     redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
+  }, [viewport, scale, elements, tempElement, color, lineWidth]);
+
+  useEffect(() => {
     if(!isRemoteUpdateRef.current) {
-      sendMessage(JSON.stringify(elements));
+      debounce(sendMessage(JSON.stringify(elements)),300)  // 300ms内多次更新只发送最后一次
     }
     isRemoteUpdateRef.current = false;
-  }, [viewport, scale, elements, tempElement, color, lineWidth,sendMessage]);
+  }, [elements, sendMessage]);
 
   return { 
     canvasRef,
