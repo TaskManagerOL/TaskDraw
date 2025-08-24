@@ -1,33 +1,31 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 
-interface UseWebSocketOptions {
-  url: string;
-  onOpen?: (event: Event) => void;
-  onMessage?: (event: MessageEvent) => void;
-  onClose?: (event: CloseEvent) => void;
-  onError?: (event: Event) => void;
-}
+import debounce from '../utils/debounce';
 
-export default function useWebSocket({
-  url,
-  onOpen,
-  onMessage,
-  onClose,
-  onError,
-}: UseWebSocketOptions) {
+export default function useWebSocket({url,elements,setElements,room}) {
   const ws = useRef<WebSocket | null>(null);
-
+  const isRemoteUpdateRef = useRef(false);
+  const [roomId,setRoomId] = useState(room || '')
+  const [num,setNum] = useState(1)
   useEffect(() => {
-    ws.current = new WebSocket(url);
-    if (onOpen) ws.current.onopen = onOpen;
-    if (onMessage) ws.current.onmessage = onMessage;
-    if (onClose) ws.current.onclose = onClose;
-    if (onError) ws.current.onerror = onError;
-
+    ws.current = new WebSocket(url+'/room='+roomId);
+    ws.current.onopen = () => {
+          console.log("WebSocket 连接已建立");
+    }
+    ws.current.onmessage = (event) => {
+      isRemoteUpdateRef.current = true; // 标记为远程更新
+      setElements(JSON.parse(event.data).elements)
+      setNum(JSON.parse(event.data).num)
+    }
+    ws.current.onclose = () => {
+      console.log("WebSocket 连接已关闭");
+    }
+    ws.current.onerror = (err) => {
+      console.error("WebSocket 错误:", err);
+    };
     return () => {
       ws.current?.close();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
   // 发送消息方法
@@ -36,6 +34,14 @@ export default function useWebSocket({
       ws.current.send(data);
     }
   }, []);
-
-  return { ws, sendMessage };
+  useEffect(() => {
+    if(!isRemoteUpdateRef.current) {
+      debounce(sendMessage(JSON.stringify(elements)),300)  // 300ms内多次更新只发送最后一次
+    }
+    isRemoteUpdateRef.current = false;
+  }, [elements, sendMessage]);
+  return { 
+    roomId,
+    num
+  };
 }

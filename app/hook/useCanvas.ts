@@ -3,8 +3,6 @@ import { useRef, useEffect, useState } from 'react';
 
 import { useMouseHandlers } from './useMouseHandlers';
 import { redrawCanvas } from "../utils/draw";
-import useWebSocket from "./useWebSocket";
-import debounce from '../utils/debounce';
 
 export default function useCanvas() {
   const canvasRef = useRef(null);
@@ -55,25 +53,6 @@ export default function useCanvas() {
     { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
   );
 
-  const isRemoteUpdateRef = useRef(false);
-  // WebSocket 连接
-  const { ws, sendMessage } = useWebSocket({
-      url: "ws://localhost:8080", // 根据你的后端端口调整
-      onOpen: () => {
-          console.log("WebSocket 连接已建立");
-      },
-      onMessage: (event) => {
-        isRemoteUpdateRef.current = true; // 标记为远程更新
-        setElements(JSON.parse(event.data).elements)
-      },
-      onClose: () => {
-          console.log("WebSocket 连接已关闭");
-      },
-      onError: (err) => {
-          console.error("WebSocket 错误:", err);
-      },
-  });
-
   // 初始化Canvas
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -112,13 +91,6 @@ export default function useCanvas() {
     redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
   }, [viewport, scale, elements, tempElement, color, lineWidth]);
 
-  useEffect(() => {
-    if(!isRemoteUpdateRef.current) {
-      debounce(sendMessage(JSON.stringify(elements)),300)  // 300ms内多次更新只发送最后一次
-    }
-    isRemoteUpdateRef.current = false;
-  }, [elements, sendMessage]);
-
   return { 
     canvasRef,
     mouseHandlers,
@@ -131,6 +103,8 @@ export default function useCanvas() {
     viewport,
     scale,
     firstTool,
-    setFirstTool
+    setFirstTool,
+    elements,
+    setElements
   }
 }

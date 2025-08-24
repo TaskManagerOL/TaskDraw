@@ -1,10 +1,17 @@
+import { useSearchParams } from 'next/navigation';
 
 import CanvasMain from "./canvasMain/canvasMain";
 import InfoBar from "./infoBar/infoBar";
 import ToolBar from "./toolBar/toolBar";
+import Room from "./room/room";
+
 import useCanvas from "../../hook/useCanvas";
+import useWebSocket from "../../hook/useWebSocket";
+import backEndUrl from "../../data/data";
 
 export default function Canvas() {
+    const searchParams  = useSearchParams();
+    const room = searchParams.get('room') ?? '';
     const {
         canvasRef,
         mouseHandlers,
@@ -17,8 +24,20 @@ export default function Canvas() {
         viewport,
         scale,
         firstTool,
-        setFirstTool
+        setFirstTool,
+        elements,
+        setElements
     } = useCanvas();
+
+    const { 
+        roomId,
+        num
+    } = useWebSocket({
+        url: backEndUrl, 
+        elements, 
+        setElements,
+        room
+    });
     
     return (
         <div>
@@ -40,6 +59,10 @@ export default function Canvas() {
                 viewport={viewport}
                 scale={scale}
                 tool={tool}
+            />
+            <Room
+                roomId={roomId}
+                num={num}
             />
         </div>
     );
