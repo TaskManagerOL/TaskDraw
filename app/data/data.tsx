@@ -1,2 +1,3 @@
-const backEndUrl = "ws://localhost:8080";
-export default backEndUrl;
+const wsBackEndUrl = "ws://localhost:8080";
+const httpBackEndUrl = "http://localhost:8080";
+export { wsBackEndUrl, httpBackEndUrl };

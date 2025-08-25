@@ -1,14 +1,23 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 
+import { wsBackEndUrl, httpBackEndUrl } from '../data/data'
 import debounce from '../utils/debounce';
 
-export default function useWebSocket({url,elements,setElements,room}) {
+export default function useWebSocket({elements,setElements,room,router,searchParams}) {
   const ws = useRef<WebSocket | null>(null);
   const isRemoteUpdateRef = useRef(false);
   const [roomId,setRoomId] = useState(room || '')
   const [num,setNum] = useState(1)
+
   useEffect(() => {
-    ws.current = new WebSocket(url+'/room='+roomId);
+    if (searchParams.has('room')) return;
+    fetch(httpBackEndUrl+'/room')
+    .then((r) => r.json())
+    .then(({ roomId }) => router.replace(`/?room=${roomId}`));
+  }, [router,searchParams]);
+
+  useEffect(() => {
+    ws.current = new WebSocket(wsBackEndUrl+'/room='+roomId);
     ws.current.onopen = () => {
     }
     ws.current.onmessage = (event) => {
@@ -25,7 +34,7 @@ export default function useWebSocket({url,elements,setElements,room}) {
     return () => {
       ws.current?.close();
     };
-  }, [url,roomId,setElements,setRoomId]);
+  }, [roomId,setElements,setRoomId]);
 
   // 发送消息方法
   const sendMessage = useCallback((data: string | ArrayBufferLike | Blob | ArrayBufferView) => {

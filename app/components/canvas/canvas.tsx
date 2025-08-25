@@ -1,4 +1,4 @@
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter  } from 'next/navigation';
 
 import CanvasMain from "./canvasMain/canvasMain";
 import InfoBar from "./infoBar/infoBar";
@@ -7,11 +7,11 @@ import Room from "./room/room";
 
 import useCanvas from "../../hook/useCanvas";
 import useWebSocket from "../../hook/useWebSocket";
-import backEndUrl from "../../data/data";
 
 export default function Canvas() {
     const searchParams  = useSearchParams();
     const room = searchParams.get('room') ?? '';
+    const router = useRouter();
     const {
         canvasRef,
         mouseHandlers,
@@ -33,14 +33,15 @@ export default function Canvas() {
         roomId,
         num
     } = useWebSocket({
-        url: backEndUrl, 
         elements, 
         setElements,
-        room
+        room,
+        router,
+        searchParams
     });
     
     return (
-        <div>
+        <div className="w-screen h-screen relative">
             <CanvasMain
                 canvasRef={canvasRef}
                 mouseHandlers={mouseHandlers}
