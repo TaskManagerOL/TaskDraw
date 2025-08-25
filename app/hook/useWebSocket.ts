@@ -10,7 +10,6 @@ export default function useWebSocket({url,elements,setElements,room}) {
   useEffect(() => {
     ws.current = new WebSocket(url+'/room='+roomId);
     ws.current.onopen = () => {
-          console.log("WebSocket 连接已建立");
     }
     ws.current.onmessage = (event) => {
       isRemoteUpdateRef.current = true; // 标记为远程更新
@@ -18,15 +17,15 @@ export default function useWebSocket({url,elements,setElements,room}) {
       setNum(JSON.parse(event.data).num)
     }
     ws.current.onclose = () => {
-      console.log("WebSocket 连接已关闭");
+      setRoomId('')
     }
     ws.current.onerror = (err) => {
-      console.error("WebSocket 错误:", err);
+      console.log("WebSocket 错误:", err);
     };
     return () => {
       ws.current?.close();
     };
-  }, [url]);
+  }, [url,roomId,setElements,setRoomId]);
 
   // 发送消息方法
   const sendMessage = useCallback((data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
