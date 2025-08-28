@@ -1,6 +1,8 @@
 'use client'
 import Icon from '@mdi/react';
 import { createToolLibrary } from "../../../model/tool";
+import type { ToolBar  } from "../../../model/type"
+
 export default function ToolBar({
         tool,
         setTool,
@@ -10,7 +12,7 @@ export default function ToolBar({
         setLineWidth, 
         firstTool, 
         setFirstTool
-    }) {
+    }:ToolBar) {
     const ToolLibrary = createToolLibrary()
     return (    //左侧工具栏，后续可以改成悬浮的
         <div className="w-10 absolute top-4 left-4 bg-[var(--toolbar-bg)] opacity-80 rounded-full px-3 py-2 flex flex-col justify-center items-center shadow-xl transition-all duration-800">
@@ -27,7 +29,7 @@ export default function ToolBar({
                                 }}
                                 title={item.text}
                             >
-                                <Icon path={item.icon} size={1} />
+                                <Icon path={item.icon??''} size={1} />
                             </button>
                         )
                     })
@@ -39,7 +41,7 @@ export default function ToolBar({
                     (firstTool=='draw'||firstTool=='graphics'||firstTool=='eraser')&&
                     (
                         <div className='flex flex-col justify-center items-center gap-2'>
-                            {ToolLibrary.findTool(firstTool).children?.map( item => {
+                            {ToolLibrary.findTool(firstTool)?.children?.map( item => {
                                 return(
                                     <button 
                                         key={item.id}
@@ -47,10 +49,10 @@ export default function ToolBar({
                                         onClick={() => setTool(item.name)}
                                         title={item.text}
                                     >
-                                        <Icon path={item.icon} size={item.name=='rectangle'?1.25:1} />
+                                        <Icon path={item.icon??''} size={item.name=='rectangle'?1.25:1} />
                                     </button>
                                 )
-                            })}
+                            })?? []}
                             <div className="w-8 border-1 my-3 border-[var(--toolbar-border)]"></div>{/* 分割 */}
                         </div>
                     )

@@ -1,6 +1,14 @@
 export default function Canvas({
     canvasRef,
     mouseHandlers
+  }:{
+    canvasRef: React.RefObject<HTMLCanvasElement>,
+    mouseHandlers: {
+      handleMouseDown: (e: React.MouseEvent | React.TouchEvent) => void,
+      handleMouseMove: (e: React.MouseEvent | React.TouchEvent) => void,
+      handleMouseUp: (e: React.MouseEvent | React.TouchEvent) => void,
+      handleWheel: (e: React.WheelEvent) => void,
+    }
   }) {
   return(
     <canvas

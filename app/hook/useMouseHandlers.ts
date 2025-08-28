@@ -1,16 +1,20 @@
 import { useCallback, useRef } from 'react';
+import type {MouseEvent,TouchEvent,WheelEvent} from 'react';
 import { screenToWorld } from "../utils/coordinate";
 import { redrawCanvas } from "../utils/draw"
 import { createToolLibrary } from "../model/tool";
+import type { States, Setters, ToolInput, Element as ElementType } from "../model/type"
+import { toolData } from '../data/data';
 
+type PointerEvent = MouseEvent<Element> | TouchEvent<Element>;
 
-function clientPos(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {//移动端和PC端获取坐标
+function clientPos(e: PointerEvent) {//移动端和PC端获取坐标
   if ('clientX' in e) return { originX: e.clientX, originY: e.clientY };
   const t = e.touches[0] || e.changedTouches[0];
   return { originX: t.clientX, originY: t.clientY };
 }
 
-function getPinchInfo(ts: TouchList) {//获取双指缩放信息
+function getPinchInfo(ts: readonly Touch[]) {//获取双指缩放信息
   if (ts?.length < 2) return null;
   const [t1, t2] = [ts[0], ts[1]];
   const dx = t2.clientX - t1.clientX;
@@ -21,7 +25,7 @@ function getPinchInfo(ts: TouchList) {//获取双指缩放信息
   return { distance, center, pointer };
 }
 
-export function useMouseHandlers(states,setters) {
+export function useMouseHandlers(states: States, setters: Setters) {
   const pinchRef = useRef<{
     distance: number;
   } | null>(null);
@@ -36,13 +40,7 @@ export function useMouseHandlers(states,setters) {
 
   const ToolLibrary = createToolLibrary()
 
-  const toolData = {
-    zoomIntensity: 0.05,
-    zoomMin: 0.3,
-    zoomMax: 3
-  }
-
-  const handleMouseDown = useCallback((e) => {
+  const handleMouseDown = useCallback((e: PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -51,8 +49,9 @@ export function useMouseHandlers(states,setters) {
     const x = originX - rect.left
     const y = originY - rect.top
 
-    if (e.touches && e.touches.length === 2) {
-      const pinchInfo = getPinchInfo(e.touches);
+    if ('touches' in e && e.touches && e.touches.length === 2) {
+      const touches = Array.from(e.touches as unknown as Touch[]);
+      const pinchInfo = getPinchInfo(touches);
       if (pinchInfo) {
         setIsPanning(true);
         setPanStart({ x: pinchInfo.pointer.x - rect.left, y: pinchInfo.pointer.y - rect.top });
@@ -61,7 +60,7 @@ export function useMouseHandlers(states,setters) {
       return;
     }
 
-    if (e.button === 2) {
+    if ('button' in e && e.button === 2) {
       setIsPanning(true);
       setPanStart({ x, y });
       return;
@@ -71,11 +70,11 @@ export function useMouseHandlers(states,setters) {
 
     setIsDrawing(true);
 
-    ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseDown(tool,color,lineWidth,worldPos,setTempElement,setElements)
+    ToolLibrary.updateTool((item: ToolInput) => item.name === tool,null)?.fn?.drawMouseDown?.(tool,color,lineWidth,worldPos,setTempElement)
 
-  },[canvasRef,viewport,scale,tool,lineWidth,color,setIsPanning,setPanStart,setIsDrawing,setElements,setTempElement,ToolLibrary])
+  },[canvasRef,viewport,scale,tool,lineWidth,color,setIsPanning,setPanStart,setIsDrawing,setTempElement,ToolLibrary])
 
-  const handleMouseMove = useCallback((e) => {
+  const handleMouseMove = useCallback((e: PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -84,8 +83,9 @@ export function useMouseHandlers(states,setters) {
     const x = originX - rect.left
     const y = originY - rect.top
 
-    if (e.touches && e.touches.length === 2) {
-      const pinchInfo = getPinchInfo(e.touches);
+    if ('touches' in e && e.touches && e.touches.length === 2) {
+      const touches = Array.from(e.touches as unknown as Touch[]);
+      const pinchInfo = getPinchInfo(touches);
       if (pinchInfo) {
         if (pinchRef.current) {
           const scaleChange = pinchInfo.distance / pinchRef.current.distance;
@@ -117,9 +117,27 @@ export function useMouseHandlers(states,setters) {
     if (!isDrawing) return;
 
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
-    ToolLibrary.updateTool(item=>item.name===tool,null).fn?.drawMouseMove(worldPos,setTempElement,elements,setElements,lineWidth)
+    ToolLibrary.updateTool((item: ToolInput) => item.name === tool,null)?.fn?.drawMouseMove?.(worldPos,setTempElement,elements,setElements,lineWidth)
     redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
-  },[canvasRef,panStart,elements,color,lineWidth,tempElement,viewport,scale,tool,isDrawing,isPanning,setViewport,setPanStart,setTempElement,setElements,ToolLibrary,toolData,setScale]);
+  },[
+    canvasRef,
+    panStart,
+    elements,
+    color,
+    lineWidth,
+    tempElement,
+    viewport,
+    scale,
+    tool,
+    isDrawing,
+    isPanning,
+    setViewport,
+    setPanStart,
+    setTempElement,
+    setElements,
+    ToolLibrary,
+    setScale
+  ]);
 
   const handleMouseUp = useCallback(() => {
     if (isPanning) {
@@ -129,12 +147,19 @@ export function useMouseHandlers(states,setters) {
     if (!isDrawing) return;
     setIsDrawing(false);
     if(tempElement){
-      setElements(prev => [...prev, tempElement]);
-      setTempElement(null);
+    setElements(prev => {
+      const prevElements = prev ?? [];
+      if (!tempElement) {
+        return prevElements;
+      }
+      const elementsToAdd = Array.isArray(tempElement) ? tempElement : [tempElement];
+      return [...prevElements, ...elementsToAdd];
+    });
+      setTempElement({} as ElementType);
     }
   },[isPanning,tempElement,isDrawing,setIsPanning,setIsDrawing,setElements,setTempElement]);
 
-  const handleWheel = useCallback((e) => {
+  const handleWheel = useCallback((e: WheelEvent<Element>) => {
     e.preventDefault();
 
     const canvas = canvasRef.current;
@@ -164,10 +189,7 @@ export function useMouseHandlers(states,setters) {
     color,
     lineWidth,
     setViewport,
-    setScale,
-    toolData.zoomIntensity,
-    toolData.zoomMax,
-    toolData.zoomMin
+    setScale
   ]);
   return {
     handleMouseDown,

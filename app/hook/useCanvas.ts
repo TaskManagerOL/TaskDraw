@@ -3,9 +3,10 @@ import { useRef, useEffect, useState } from 'react';
 
 import { useMouseHandlers } from './useMouseHandlers';
 import { redrawCanvas } from "../utils/draw";
+import type { Element } from "../model/type"
 
 export default function useCanvas() {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null!);
   const [viewport, setViewport] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
@@ -21,7 +22,7 @@ export default function useCanvas() {
   const [color, setColor] = useState(getInitialColor);
   const [lineWidth, setLineWidth] = useState(10);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [elements, setElements] = useState([]);
+  const [elements, setElements] = useState<Element[]>([]);
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedViewport = localStorage.getItem('canvas_viewport');
@@ -45,7 +46,7 @@ export default function useCanvas() {
     }
   }, [viewport, elements]);
   
-  const [tempElement, setTempElement] = useState(null);
+  const [tempElement, setTempElement] = useState<Element>({} as Element);
   const [firstTool,setFirstTool] = useState('draw')
 
   const mouseHandlers = useMouseHandlers(
@@ -59,7 +60,7 @@ export default function useCanvas() {
     if (canvas) {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth, setElements);
+      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
     }
 
     const handleResize = () => {
@@ -78,7 +79,7 @@ export default function useCanvas() {
         x: newViewportX,
         y: newViewportY
       });
-      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth, setElements);
+      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
     };
     window.addEventListener('resize', handleResize);
     return () => {

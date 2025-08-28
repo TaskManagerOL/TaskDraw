@@ -1,9 +1,7 @@
-//前置函数和数据
-const toolData = {
-  pointDistThreshold: 4
-}
+import { toolData } from '../data/data';
+import { Element, ToolFn, Point } from '../model/type';
 
-function distToSegment(p: {x:number,y:number}, v:{x:number,y:number}, w:{x:number,y:number}): number { //判断橡皮擦与线段的距离
+function distToSegment(p: Point, v:Point, w:Point): number { //判断橡皮擦与线段的距离
   const l2 = (w.x - v.x) ** 2 + (w.y - v.y) ** 2;
   if (l2 === 0) return Math.hypot(p.x - v.x, p.y - v.y);
   let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
@@ -12,7 +10,7 @@ function distToSegment(p: {x:number,y:number}, v:{x:number,y:number}, w:{x:numbe
   return Math.hypot(p.x - proj.x, p.y - proj.y);
 }
 
-function interpolatePoints(a: {x:number,y:number}, b: {x:number,y:number}) { //两点间插值，返回插值点数组
+function interpolatePoints(a: Point, b: Point) { //两点间插值，返回插值点数组
   const dx = b.x - a.x;
   const dy = b.y - a.y;
   const dist = Math.sqrt(dx*dx + dy*dy);
@@ -28,7 +26,7 @@ function interpolatePoints(a: {x:number,y:number}, b: {x:number,y:number}) { //�
 }
 
 //此处写工具的canvas逻辑
-const ballpointPen = {
+const ballpointPen:ToolFn = {
   drawElement:(...args) => {
     const [ ctx,element ] = args
     ctx.beginPath();
@@ -83,8 +81,8 @@ const ballpointPen = {
   }
 }
 
-const rectangle = {
-  drawElement: (...args) => {
+const rectangle:ToolFn = {
+  drawElement: (...args: [CanvasRenderingContext2D, Element]) => {
     const [ ctx,element ] = args;
     const validPoints = element.points.filter(Boolean);
     if (validPoints.length < 2) return;
@@ -128,7 +126,7 @@ const rectangle = {
       const p1 = { x: worldPos.x, y: p0.y };
       const p2 = { x: worldPos.x, y: worldPos.y };
       const p3 = { x: p0.x, y: worldPos.y };
-      let points = [];
+      let points:Point[] = [];
       points = points.concat(interpolatePoints(p0, p1));
       points = points.concat(interpolatePoints(p1, p2));
       points = points.concat(interpolatePoints(p2, p3));
@@ -144,8 +142,8 @@ const rectangle = {
   }
 }
 
-const circle = {
-  drawElement: (...args) => {
+const circle:ToolFn = {
+  drawElement: (...args: [CanvasRenderingContext2D, Element]) => {
     const [ ctx,element ] = args;
     const validPoints = element.points.slice(1).filter(Boolean);
     if (validPoints.length < 2) return;
@@ -204,13 +202,14 @@ const circle = {
   }
 }
 
-const elementEraser = {
+const elementEraser:ToolFn = {
   drawElement: ()=>{},
   drawMouseDown: ()=>{},
   drawMouseMove: (...args) => {
     const [worldPos, , elements, setElements, lineWidth] = args;
     const r = lineWidth / 2;
     const hitIndex = elements.findIndex(el => {
+      if (!el.points || !Array.isArray(el.points)) return false;
       for (let i = 0; i < el.points.length - 1; i++) {
         const p1 = el.points[i];
         const p2 = el.points[i + 1];
@@ -226,17 +225,21 @@ const elementEraser = {
   }
 }
 
-const normalEraser = {
+const normalEraser:ToolFn = {
   drawElement: ()=>{},
   drawMouseDown: ()=>{},
   drawMouseMove: (...args) => {
     const [worldPos, , ,setElements, lineWidth] = args;
-    const r = lineWidth / 2;
+    const r = lineWidth;
     setElements(prev => {
       let changed = false;
       const newElements = [];
       for (const el of prev) {
-        const points = [...el.points];
+        if (!el.points || !Array.isArray(el.points)) {
+          newElements.push(el);
+          continue;
+        }
+        const points:(Point|null)[] = [...el.points];
         let erased = false;
         for (let i = 0; i < points.length - 1; i++) {
           const p1 = points[i];
@@ -244,7 +247,7 @@ const normalEraser = {
           if (!p1 || !p2) continue;
           const d = distToSegment(worldPos, p1, p2);
           if (d <= r) {
-            points[i + 1] = null;
+            points[i+1] = null; // 标记为删除
             erased = true;
             changed = true;
             break;

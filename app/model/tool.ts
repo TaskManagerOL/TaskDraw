@@ -9,30 +9,28 @@ import {
   mdiEraserVariant
 } from '@mdi/js';
 
-import { toolFn } from '../utils/toolFn.ts'
+import { toolFn } from '../utils/toolFn'
+import { ToolInput,ToolFn } from './type';
 
-type ToolInput = {
-  id:number,
-  name:string,
-  text:string,
-  icon:string,
-  fn?: AnyFn | null;
-  iconSize?: number | null;
-  children?: ToolInput[];
-}
+type ToolKey = keyof ToolModel; 
 
 class ToolModel {
+  public readonly id: number;
+  public readonly name: string;
+  public readonly text: string;
+  public readonly icon: string | null;
+  public readonly fn?: ToolFn | null;
+  public readonly children: ToolModel[];
   constructor(tool:ToolInput) {
     this.id = tool.id;
     this.name = tool.name;
     this.text = tool.text;
     this.icon = tool.icon;
     this.fn = tool.fn||null
-    this.iconSize = tool.iconSize||null
     this.children = tool.children?.map(child => new ToolModel(child)) || [];;
   }
 
-  toolLib(tool = this, arr = []) {
+  toolLib(tool: ToolModel = this, arr: ToolModel[] = []): ToolModel[] {
     if (tool.children) {
       tool.children.forEach(item => {
         if (item.children && item.children.length > 0)
@@ -44,14 +42,14 @@ class ToolModel {
     return arr;
   }
 
-  findTool(value:string,order:stirng = 'name') {
+  findTool(value:string,order:ToolKey = 'name') {
     return this.children.find(firstTool => firstTool[order] === value)
   }
 
-  updateTool(findFn, updateFn) {
-    const stack = [this];
+  updateTool(findFn:(tool: ToolInput)=> boolean, updateFn:((tool: ToolInput)=> void)|null) {
+    const stack: ToolInput[] = [this];
     while (stack.length > 0) {
-      const node = stack.pop();
+      const node = stack.pop()!;
       if (node.children && node.children.length > 0)
         for (let i = node.children.length - 1; i >= 0; i--)
           stack.push(node.children[i])
@@ -65,7 +63,7 @@ class ToolModel {
 }
 
 //此处写tool树结构
-const tool = {
+const tool:ToolInput = {
   id: 1,
   name: 'root',
   text: '工具库',

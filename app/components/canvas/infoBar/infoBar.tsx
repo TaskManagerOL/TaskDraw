@@ -2,6 +2,10 @@ export default function InfoBar({
         tool,
         viewport,
         scale
+    }:{
+        tool: string,
+        viewport: {x: number, y: number},
+        scale: number
     }){
     return (
         <div className="fixed flex bottom-4 right-4 text-white text-sm">

@@ -1,9 +1,24 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 
-import { wsBackEndUrl, httpBackEndUrl } from '../data/data'
+import { wsBackEndUrl, httpBackEndUrl } from '../data/url'
 import debounce from '../utils/debounce';
+import type { Element } from '../model/type'
+import type { ReadonlyURLSearchParams } from 'next/navigation';
+import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-export default function useWebSocket({elements,setElements,room,router,searchParams}) {
+export default function useWebSocket({
+  elements,
+  setElements,
+  room,
+  router,
+  searchParams
+}:{
+  elements: Element[],
+  setElements: React.Dispatch<React.SetStateAction<Element[]>>,
+  room?: string,
+  router:AppRouterInstance,
+  searchParams:ReadonlyURLSearchParams
+}) {
   const ws = useRef<WebSocket | null>(null);
   const isRemoteUpdateRef = useRef(false);
   const [roomId,setRoomId] = useState(room || '')
@@ -13,11 +28,12 @@ export default function useWebSocket({elements,setElements,room,router,searchPar
     if (searchParams.has('room')) return;
     fetch(httpBackEndUrl+'/room')
     .then((r) => r.json())
-    .then(({ roomId }) => router.replace(`/?room=${roomId}`));
+    .then(({ roomId }) => router.replace(`/?room=${roomId}`))
+    .catch((err) => {}); 
   }, [router,searchParams]);
 
   useEffect(() => {
-    ws.current = new WebSocket(wsBackEndUrl+'/room='+roomId);
+    ws.current = new WebSocket(`${wsBackEndUrl}?room=${roomId}`);
     ws.current.onopen = () => {
     }
     ws.current.onmessage = (event) => {
@@ -29,7 +45,7 @@ export default function useWebSocket({elements,setElements,room,router,searchPar
       setRoomId('')
     }
     ws.current.onerror = (err) => {
-      console.log("WebSocket 错误:", err);
+      // console.log("WebSocket 错误:", err);
     };
     return () => {
       ws.current?.close();
@@ -44,7 +60,7 @@ export default function useWebSocket({elements,setElements,room,router,searchPar
   }, []);
   useEffect(() => {
     if(!isRemoteUpdateRef.current) {
-      debounce(sendMessage(JSON.stringify(elements)),300)  // 300ms内多次更新只发送最后一次
+      debounce(() => sendMessage(JSON.stringify(elements)), 300)();  // 300ms内多次更新只发送最后一次
     }
     isRemoteUpdateRef.current = false;
   }, [elements, sendMessage]);

@@ -1,10 +1,12 @@
-const debunce = (fn,time) => {
-  let timer = null;
-  return function(...args) {
+function debounce<T extends (...args: never[]) => unknown>(
+  fn: T,
+  time: number
+): (...args: Parameters<T>) => void {
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  return function (...args: Parameters<T>) {
     if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      fn.apply(this, args);
-    }, time);
+    timer = setTimeout(() => fn(...args), time);
   };
 }
-export default debunce;
+
+export default debounce;
