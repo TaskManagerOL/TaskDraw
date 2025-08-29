@@ -80,6 +80,7 @@ const redrawCanvas:redrawCanvasProps = (
   if (!ctx) return;
   ctx.clearRect(0, 0, width, height);
   drawBackground(ctx, width, height,viewport,scale);
+  
   elements.forEach(element => {
     drawElement(ctx, element,viewport, scale, color, lineWidth);
   });

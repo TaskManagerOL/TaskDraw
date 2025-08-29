@@ -23,6 +23,7 @@ export default function useWebSocket({
   const isRemoteUpdateRef = useRef(false);
   const [roomId,setRoomId] = useState(room || '')
   const [num,setNum] = useState(1)
+  const version = useRef<number>(Date.now());
 
   useEffect(() => {
     if (searchParams.has('room')) return;
@@ -33,11 +34,15 @@ export default function useWebSocket({
   }, [router,searchParams]);
 
   useEffect(() => {
+    // ws.current = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}${wsBackEndUrl}/?room=${roomId}`);
     ws.current = new WebSocket(`${wsBackEndUrl}?room=${roomId}`);
     ws.current.onopen = () => {
     }
     ws.current.onmessage = (event) => {
       isRemoteUpdateRef.current = true; // 标记为远程更新
+      if(version.current && JSON.parse(event.data).version.current && version.current >= JSON.parse(event.data).version.current) {
+        return; 
+      }
       setElements(JSON.parse(event.data).elements)
       setNum(JSON.parse(event.data).num)
     }
@@ -59,8 +64,10 @@ export default function useWebSocket({
     }
   }, []);
   useEffect(() => {
+    version.current = Date.now();
     if(!isRemoteUpdateRef.current) {
-      debounce(() => sendMessage(JSON.stringify(elements)), 300)();  // 300ms内多次更新只发送最后一次
+      debounce(() => sendMessage(JSON.stringify({elements,version})), 120)();
+      // debounce(() => sendMessage(JSON.stringify(elements)), 120)();
     }
     isRemoteUpdateRef.current = false;
   }, [elements, sendMessage]);

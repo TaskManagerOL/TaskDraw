@@ -160,7 +160,6 @@ export function useMouseHandlers(states: States, setters: Setters) {
   },[isPanning,tempElement,isDrawing,setIsPanning,setIsDrawing,setElements,setTempElement]);
 
   const handleWheel = useCallback((e: WheelEvent<Element>) => {
-    e.preventDefault();
 
     const canvas = canvasRef.current;
     if (!canvas) return;
