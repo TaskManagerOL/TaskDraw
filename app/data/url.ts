@@ -1,6 +1,5 @@
-// const wsBackEndUrl = "ws://localhost:8080/ws";
-// const httpBackEndUrl = "http://localhost:8080";
+const isProduction = true;
+const wsBackEndUrl = isProduction?"ws://localhost:8080/ws":"/ws";
+const httpBackEndUrl = isProduction?"http://localhost:8080":"";
 
-const wsBackEndUrl = "/ws";
-const httpBackEndUrl = "/api";
-export { wsBackEndUrl, httpBackEndUrl };
+export { wsBackEndUrl, httpBackEndUrl, isProduction };

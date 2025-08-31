@@ -26,7 +26,8 @@ export default function Canvas() {
         firstTool,
         setFirstTool,
         elements,
-        setElements
+        setElements,
+        isRemoteUpdateRef
     } = useCanvas();
 
     const { 
@@ -37,7 +38,8 @@ export default function Canvas() {
         setElements,
         room,
         router,
-        searchParams
+        searchParams,
+        isRemoteUpdateRef
     });
     
     return (

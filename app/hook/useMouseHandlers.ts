@@ -31,7 +31,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
   } | null>(null);
 
   const {
-    tool, color, lineWidth, isDrawing, canvasRef, scale,viewport,isPanning,panStart,tempElement,elements
+    tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef
   } = states;
 
   const {
@@ -157,7 +157,8 @@ export function useMouseHandlers(states: States, setters: Setters) {
     });
       setTempElement({} as ElementType);
     }
-  },[isPanning,tempElement,isDrawing,setIsPanning,setIsDrawing,setElements,setTempElement]);
+    isRemoteUpdateRef.current = false;
+  },[isPanning,tempElement,isDrawing,setIsPanning,setIsDrawing,setElements,setTempElement,isRemoteUpdateRef]);
 
   const handleWheel = useCallback((e: WheelEvent<Element>) => {
 

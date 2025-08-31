@@ -23,15 +23,16 @@ export default function useCanvas() {
   const [lineWidth, setLineWidth] = useState(10);
   const [isDrawing, setIsDrawing] = useState(false);
   const [elements, setElements] = useState<Element[]>([]);
+  const isRemoteUpdateRef = useRef(false);
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedViewport = localStorage.getItem('canvas_viewport');
+      const savedViewport = sessionStorage.getItem('canvas_viewport');
       if (savedViewport) {
         try {
           setViewport(JSON.parse(savedViewport));
         } catch {}
       }
-      const savedElements = localStorage.getItem('canvas_elements');
+      const savedElements = sessionStorage.getItem('canvas_elements');
       if (savedElements) {
         try {
           setElements(JSON.parse(savedElements));
@@ -41,8 +42,8 @@ export default function useCanvas() {
   }, []);
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('canvas_viewport', JSON.stringify(viewport));
-      localStorage.setItem('canvas_elements', JSON.stringify(elements));
+      sessionStorage.setItem('canvas_viewport', JSON.stringify(viewport));
+      sessionStorage.setItem('canvas_elements', JSON.stringify(elements));
     }
   }, [viewport, elements]);
   
@@ -50,7 +51,7 @@ export default function useCanvas() {
   const [firstTool,setFirstTool] = useState('draw')
 
   const mouseHandlers = useMouseHandlers(
-    { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements },
+    { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef },
     { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
   );
 
@@ -106,6 +107,7 @@ export default function useCanvas() {
     firstTool,
     setFirstTool,
     elements,
-    setElements
+    setElements,
+    isRemoteUpdateRef
   }
 }

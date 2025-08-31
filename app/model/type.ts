@@ -25,6 +25,7 @@ interface States {
   tempElement: Element;
   elements:  Element[];
   firstTool?: string;
+  isRemoteUpdateRef?: RefObject<boolean>;
 }
 
 interface Setters {
