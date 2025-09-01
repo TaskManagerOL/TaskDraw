@@ -19,10 +19,9 @@ export default function useWebSocket({
   room?: string,
   router:AppRouterInstance,
   searchParams:ReadonlyURLSearchParams,
-  isRemoteUpdateRef: React.RefObject<boolean>
+  isRemoteUpdateRef: React.RefObject<boolean|undefined>
 }) {
   const ws = useRef<WebSocket | null>(null);
-  
   const [roomId,setRoomId] = useState(room || '')
   const [num,setNum] = useState(1)
   const version = useRef<number>(Date.now());
@@ -31,7 +30,7 @@ export default function useWebSocket({
     fetch(httpBackEndUrl+'/room')
     .then((r) => r.json())
     .then(({ roomId }) => router.replace(`/?room=${roomId}`))
-    .catch((err) => {}); 
+    .catch(() => {}); 
   }, [router,searchParams]);
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function useWebSocket({
     ws.current.onopen = () => {
     }
     ws.current.onmessage = (event) => {
-      console.log(new Date());
+      console.log(Date.now());
       isRemoteUpdateRef.current = true; // 标记为远程更新
       if(JSON.parse(event.data).type == 'num') {
         setNum(JSON.parse(event.data).num)
@@ -60,13 +59,12 @@ export default function useWebSocket({
     ws.current.onclose = () => {
       setRoomId('')
     }
-    ws.current.onerror = (err) => {
-      // console.log("WebSocket 错误:", err);
+    ws.current.onerror = () => {
     };
     return () => {
       ws.current?.close();
     };
-  }, [roomId,setElements,setRoomId]);
+  }, [roomId]);
 
   // 发送消息方法
   const sendMessage = useCallback((data: string | ArrayBufferLike | Blob | ArrayBufferView) => {
@@ -82,7 +80,6 @@ export default function useWebSocket({
   useEffect(() => {
     version.current = Date.now();
     if(!isRemoteUpdateRef.current && elements.length > 0) {
-      console.log(2);
       debouncedSend({elements,version})
     }
     isRemoteUpdateRef.current = false;

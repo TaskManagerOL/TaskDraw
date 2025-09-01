@@ -31,7 +31,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
   } | null>(null);
 
   const {
-    tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef
+    tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef, bgBitmapRef, elementsBitmapRef
   } = states;
 
   const {
@@ -110,7 +110,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
         }));
 
         setPanStart({ x, y });
-        redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
+        redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
         return;
     }
 
@@ -118,7 +118,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
 
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
     ToolLibrary.updateTool((item: ToolInput) => item.name === tool,null)?.fn?.drawMouseMove?.(worldPos,setTempElement,elements,setElements,lineWidth)
-    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
+    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
   },[
     canvasRef,
     panStart,
@@ -136,7 +136,9 @@ export function useMouseHandlers(states: States, setters: Setters) {
     setTempElement,
     setElements,
     ToolLibrary,
-    setScale
+    setScale,
+        bgBitmapRef,
+    elementsBitmapRef
   ]);
 
   const handleMouseUp = useCallback(() => {
@@ -157,7 +159,9 @@ export function useMouseHandlers(states: States, setters: Setters) {
     });
       setTempElement({} as ElementType);
     }
-    isRemoteUpdateRef.current = false;
+    console.log(Date.now());
+    
+    isRemoteUpdateRef!.current = false;
   },[isPanning,tempElement,isDrawing,setIsPanning,setIsDrawing,setElements,setTempElement,isRemoteUpdateRef]);
 
   const handleWheel = useCallback((e: WheelEvent<Element>) => {
@@ -179,7 +183,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
     }));
 
     setScale(newScale);
-    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth);
+    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
   },[
     canvasRef,
     elements,
@@ -189,7 +193,9 @@ export function useMouseHandlers(states: States, setters: Setters) {
     color,
     lineWidth,
     setViewport,
-    setScale
+    setScale,
+    bgBitmapRef,
+    elementsBitmapRef
   ]);
   return {
     handleMouseDown,

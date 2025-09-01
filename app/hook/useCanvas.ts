@@ -2,7 +2,7 @@
 import { useRef, useEffect, useState } from 'react';
 
 import { useMouseHandlers } from './useMouseHandlers';
-import { redrawCanvas } from "../utils/draw";
+import { redrawCanvas,createBackgroundBitmap,createElementsBitmap,handleResize } from "../utils/draw";
 import type { Element } from "../model/type"
 
 export default function useCanvas() {
@@ -23,8 +23,17 @@ export default function useCanvas() {
   const [lineWidth, setLineWidth] = useState(10);
   const [isDrawing, setIsDrawing] = useState(false);
   const [elements, setElements] = useState<Element[]>([]);
-  const isRemoteUpdateRef = useRef(false);
-  useEffect(() => {
+  const isRemoteUpdateRef = useRef<boolean|undefined>(false);
+  const [tempElement, setTempElement] = useState<Element>({} as Element);
+  const [firstTool,setFirstTool] = useState('draw')
+  const bgBitmapRef = useRef<HTMLCanvasElement | null>(null);
+  const elementsBitmapRef = useRef<HTMLCanvasElement | null>(null);
+  const mouseHandlers = useMouseHandlers(
+    { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef, bgBitmapRef, elementsBitmapRef },
+    { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
+  );
+
+  useEffect(() => { //本地存储
     if (typeof window !== 'undefined') {
       const savedViewport = sessionStorage.getItem('canvas_viewport');
       if (savedViewport) {
@@ -45,53 +54,39 @@ export default function useCanvas() {
       sessionStorage.setItem('canvas_viewport', JSON.stringify(viewport));
       sessionStorage.setItem('canvas_elements', JSON.stringify(elements));
     }
-  }, [viewport, elements]);
-  
-  const [tempElement, setTempElement] = useState<Element>({} as Element);
-  const [firstTool,setFirstTool] = useState('draw')
-
-  const mouseHandlers = useMouseHandlers(
-    { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef },
-    { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
-  );
+  }, [elements]);//只在elements变化时存储，节省性能
 
   // 初始化Canvas
   useEffect(() => {
+    console.log('初始化Canvas');
     const canvas = canvasRef.current;
+    bgBitmapRef.current = createBackgroundBitmap(window.innerWidth, window.innerHeight, viewport, scale);
+    elementsBitmapRef.current = createElementsBitmap(window.innerWidth, window.innerHeight, viewport, scale, color, lineWidth, elements);
     if (canvas) {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
+      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth, bgBitmapRef.current, elementsBitmapRef.current);
     }
+  }, []);
 
-    const handleResize = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      // 以当前中心点为基准调整 viewport
-      const currentCenterX = canvas.width / (2 * scale) + viewport.x;
-      const currentCenterY = canvas.height / (2 * scale) + viewport.y;
-      const newWidth = window.innerWidth;
-      const newHeight = window.innerHeight;
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-      const newViewportX = currentCenterX - newWidth / (2 * scale);
-      const newViewportY = currentCenterY - newHeight / (2 * scale);
-      setViewport({
-        x: newViewportX,
-        y: newViewportY
-      });
-      redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
-    };
-    window.addEventListener('resize', handleResize);
+  useEffect(() => { //窗口变化
+    window.addEventListener('resize', handleResize(canvasRef, setViewport, viewport, scale, elements, tempElement, color, lineWidth, bgBitmapRef, elementsBitmapRef));
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [elements, tempElement, viewport, scale, color, lineWidth]);
+  }, []);
 
-  // 绘制工具变化时重绘
-  useEffect(() => {
-    redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth);
-  }, [viewport, scale, elements, tempElement, color, lineWidth]);
+  useEffect(() => { //背景位图更新
+    bgBitmapRef.current = createBackgroundBitmap(window.innerWidth, window.innerHeight, viewport, scale);
+  }, [scale,viewport]);
+
+  useEffect(() => { //元素位图更新
+    elementsBitmapRef.current = createElementsBitmap(window.innerWidth, window.innerHeight, viewport, scale, color, lineWidth, elements);
+  },[elements,tempElement,scale, viewport]);
+  
+  useEffect(() => { // 重绘
+    requestAnimationFrame(()=>redrawCanvas(canvasRef, elements, tempElement, viewport, scale, color, lineWidth, bgBitmapRef.current, elementsBitmapRef.current));
+  }, [scale, viewport, elements, tempElement]);
 
   return { 
     canvasRef,

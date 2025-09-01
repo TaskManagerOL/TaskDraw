@@ -25,7 +25,9 @@ interface States {
   tempElement: Element;
   elements:  Element[];
   firstTool?: string;
-  isRemoteUpdateRef?: RefObject<boolean>;
+  isRemoteUpdateRef?: RefObject<boolean|undefined>;
+  bgBitmapRef?: RefObject<HTMLCanvasElement>;
+  elementsBitmapRef?: RefObject<HTMLCanvasElement>;
 }
 
 interface Setters {
@@ -113,9 +115,13 @@ interface redrawCanvasProps {
     viewport: Point,
     scale: number,
     color: string,
-    lineWidth: number
+    lineWidth: number,
+    bgBitmap?: HTMLCanvasElement,
+    elementsBitmap?: HTMLCanvasElement
   ): void;
 }
+
+
 
 
 export type { Element ,States, Setters, ToolBar, ToolInput, ToolFn, drawElementProps, drawBackgroundProps, redrawCanvasProps, Point };
