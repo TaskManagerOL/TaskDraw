@@ -38,22 +38,23 @@ export default function useWebSocket({
     ws.current.onopen = () => {
     }
     ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data)
       console.log(Date.now());
       isRemoteUpdateRef.current = true; // 标记为远程更新
-      if(JSON.parse(event.data).type == 'num') {
-        setNum(JSON.parse(event.data).num)
+      if(data.type == 'num') {
+        setNum(data.num)
         return;
       }
-      if(JSON.parse(event.data).type == 'init' && JSON.parse(event.data).roomElements) {
-        setElements(JSON.parse(event.data).roomElements)
+      if(data.type == 'init' && data.roomElements) {
+        setElements(data.roomElements)
         return;
       }
-      if(version.current && JSON.parse(event.data).version.current && version.current >= JSON.parse(event.data).version.current) {
+      if(version.current && data.version.current && version.current >= data.version.current) {
         return; 
       }
-      if(JSON.parse(event.data).type == 'cloud'){
-        setElements(JSON.parse(event.data).elements)
-        setNum(JSON.parse(event.data).num)
+      if(data.type == 'cloud'){
+        setElements(data.elements)
+        setNum(data.num)
       }
     }
     ws.current.onclose = () => {
