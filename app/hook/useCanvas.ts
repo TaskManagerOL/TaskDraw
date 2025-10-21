@@ -26,8 +26,8 @@ export default function useCanvas() {
   const isRemoteUpdateRef = useRef<boolean|undefined>(false);
   const [tempElement, setTempElement] = useState<Element>({} as Element);
   const [firstTool,setFirstTool] = useState('draw')
-  const bgBitmapRef = useRef<HTMLCanvasElement | null>(null);
-  const elementsBitmapRef = useRef<HTMLCanvasElement | null>(null);
+  const bgBitmapRef = useRef<HTMLCanvasElement | undefined>(undefined);
+  const elementsBitmapRef = useRef<HTMLCanvasElement | undefined>(undefined);
   const mouseHandlers = useMouseHandlers(
     { tool, color, lineWidth, isDrawing, canvasRef, scale, viewport, isPanning, panStart, tempElement, elements, isRemoteUpdateRef, bgBitmapRef, elementsBitmapRef },
     { setElements, setIsDrawing, setTempElement, setIsPanning, setPanStart, setViewport, setScale }
@@ -70,9 +70,12 @@ export default function useCanvas() {
   }, []);
 
   useEffect(() => { //窗口变化
-    window.addEventListener('resize', handleResize(canvasRef, setViewport, viewport, scale, elements, tempElement, color, lineWidth, bgBitmapRef, elementsBitmapRef));
+    const onResize = () => {
+      handleResize(canvasRef, setViewport, viewport, scale, elements, tempElement, color, lineWidth, bgBitmapRef, elementsBitmapRef);
+    }
+    window.addEventListener('resize',onResize);
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 

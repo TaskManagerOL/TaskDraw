@@ -133,8 +133,8 @@ const handleResize = (
   tempElement: Element,
   color: string,
   lineWidth: number,
-  bgBitmapRef: React.RefObject<HTMLCanvasElement>,
-  elementsBitmapRef: React.RefObject<HTMLCanvasElement>
+  bgBitmapRef: React.RefObject<HTMLCanvasElement|undefined>,
+  elementsBitmapRef: React.RefObject<HTMLCanvasElement|undefined>
 ) => {
   const canvas = canvasRef.current;
   if (!canvas) return;

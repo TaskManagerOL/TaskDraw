@@ -29,7 +29,10 @@ export default function useWebSocket({
     if (searchParams.has('room')) return;
     fetch(httpBackEndUrl+'/room')
     .then((r) => r.json())
-    .then(({ roomId }) => router.replace(`/?room=${roomId}`))
+    .then(({ roomId }) => {
+      router.replace(`/?room=${roomId}`)
+      setRoomId(roomId)
+    })
     .catch(() => {}); 
   }, [router,searchParams]);
 
@@ -58,7 +61,7 @@ export default function useWebSocket({
       }
     }
     ws.current.onclose = () => {
-      setRoomId('')
+      // setRoomId('')
     }
     ws.current.onerror = () => {
     };

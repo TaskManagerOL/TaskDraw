@@ -26,8 +26,8 @@ interface States {
   elements:  Element[];
   firstTool?: string;
   isRemoteUpdateRef?: RefObject<boolean|undefined>;
-  bgBitmapRef?: RefObject<HTMLCanvasElement>;
-  elementsBitmapRef?: RefObject<HTMLCanvasElement>;
+  bgBitmapRef?: RefObject<HTMLCanvasElement|undefined>;
+  elementsBitmapRef?: RefObject<HTMLCanvasElement|undefined>;
 }
 
 interface Setters {

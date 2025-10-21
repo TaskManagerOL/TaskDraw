@@ -110,7 +110,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
         }));
 
         setPanStart({ x, y });
-        redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
+        redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef!.current,elementsBitmapRef!.current);
         return;
     }
 
@@ -118,7 +118,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
 
     const worldPos = screenToWorld(x, y , viewport.x , viewport.y ,scale);
     ToolLibrary.updateTool((item: ToolInput) => item.name === tool,null)?.fn?.drawMouseMove?.(worldPos,setTempElement,elements,setElements,lineWidth)
-    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
+    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef!.current,elementsBitmapRef!.current);
   },[
     canvasRef,
     panStart,
@@ -137,7 +137,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
     setElements,
     ToolLibrary,
     setScale,
-        bgBitmapRef,
+    bgBitmapRef,
     elementsBitmapRef
   ]);
 
@@ -183,7 +183,7 @@ export function useMouseHandlers(states: States, setters: Setters) {
     }));
 
     setScale(newScale);
-    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef.current,elementsBitmapRef.current);
+    redrawCanvas(canvasRef,elements,tempElement,viewport,scale,color,lineWidth,bgBitmapRef!.current,elementsBitmapRef!.current);
   },[
     canvasRef,
     elements,
